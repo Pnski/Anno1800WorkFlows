@@ -1,13 +1,29 @@
+name: check-submodules
 on:
   schedule:
   - cron: "0 0 * * *"
 
 jobs:
-  stale:
+  check-submodules:
+    name: Check Submodule
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@v1.1.0
+    - name: Checkout this repo
+      uses: actions/checkout@v3
+    ## Step only reqired for private submodules
+    - name: Checkout submodule repo
+      uses: actions/checkout@v3
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Message to comment on stale issues. If none provided, will not mark issues stale'
-        stale-pr-message: 'Message to comment on stale PRs. If none provided, will not mark PRs stale'
+        repository: UserOrg/RepoName
+        path: "path/to/repo"
+        token: ${{ secrets.PAT_for_Private_Submodule }}
+    - name: Check Submodule Name
+      uses: jtmullen/submodule-branch-check-action@v1
+      with:
+        path: "path/to/submodule"
+        branch: "main"
+        first_parent: true
+        fetch_depth: "50"
+        pass_if_unchanged: true
+        require_head: true
+		disable_progression: true
